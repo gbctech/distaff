@@ -3,6 +3,7 @@ use distaff::{ self, StarkProof };
 
 mod examples;
 use examples::{ Example };
+use std::fs::File;
 
 fn main() {
 
@@ -47,12 +48,38 @@ fn main() {
     println!("Execution proof security: {} bits", options.security_level(true));
     println!("--------------------------------");
 
-    // verify that executing a program with a given hash and given inputs
-    // results in the expected output
-    let proof = bincode::deserialize::<StarkProof>(&proof_bytes).unwrap();
-    let now = Instant::now();
-    match distaff::verify(program.hash(), inputs.get_public_inputs(), &outputs, &proof) {
-        Ok(_) => println!("Execution verified in {} ms", now.elapsed().as_millis()),
-        Err(msg) => println!("Failed to verify execution: {}", msg)
-    }
+	let s_program_hash = bincode::serialize(&program.hash()).unwrap();
+	let s_public_input = bincode::serialize(&inputs.get_public_inputs()).unwrap();
+	let s_outputs = bincode::serialize(&outputs).unwrap();
+	let s_proof= bincode::serialize(&proof).unwrap();
+
+	let d_program_hash : [u8; 32]= bincode::deserialize(&s_program_hash).unwrap();
+	let d_public_input :  Vec<u128>= bincode::deserialize(&s_public_input).unwrap();
+	let d_outputs : Vec<u128>= bincode::deserialize(&s_outputs).unwrap();
+	let d_proof : StarkProof = bincode::deserialize(&s_proof).unwrap();
+
+	let path_program_hash: &str = "s_program_hash";
+	let mut output: File = File::create(path_program_hash).unwrap();
+	output.write(&s_program_hash);
+
+	let path_public_input: &str = "s_public_input";
+	let mut output: File = File::create(path_public_input).unwrap();
+	output.write(&s_public_input);
+
+	let path_outputs: &str = "s_output";
+	let mut output: File = File::create(path_outputs).unwrap();
+	output.write(&s_outputs);
+
+	let path_proof: &str = "s_proof";
+	let mut output: File = File::create(path_proof).unwrap();
+	output.write(&s_proof);
+
+	let _proof = bincode::deserialize::<StarkProof>(&proof_bytes).unwrap();
+	let now = Instant::now();
+
+	match distaff::verify(&d_program_hash, &d_public_input, &d_outputs, &d_proof) {
+		Ok(_) => println!("Execution verified in {} ms", now.elapsed().as_millis()),
+		Err(msg) => println!("Failed to verify execution: {}", msg)
+	}
+
 }
