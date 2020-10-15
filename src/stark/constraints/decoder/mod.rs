@@ -57,7 +57,9 @@ pub const NUM_STATIC_DECODER_CONSTRAINTS: usize =
 // TYPES AND INTERFACES
 // ================================================================================================
 pub struct Decoder {
+    #[allow(dead_code)]
     ctx_depth           : usize,
+    #[allow(dead_code)]
     loop_depth          : usize,
     trace_length        : usize,
     cycle_length        : usize,

@@ -18,6 +18,7 @@ pub struct Evaluator {
 
     t_constraint_num: usize,
     t_degree_groups : Vec<(u128, Vec<usize>)>,
+    #[allow(dead_code)]
     t_evaluations   : Vec<Vec<u128>>,
 
     b_constraint_num: usize,
